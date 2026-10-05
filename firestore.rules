@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'fabilhano@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == 'fabilhano@gmail.com')
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Full User Profiles (Contains private emails, history, stats)
+    match /users/{userId} {
+      // Only the user themselves or the verified admin fabilhano@gmail.com can read
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Creating or updating own profile (non-admins cannot grant themselves admin role)
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if (isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Public Presence (Contains strictly public info: avatarId, name, isOnline, lastSeen)
+    match /public_presence/{userId} {
+      // Any authenticated user can read public presence
+      allow read: if isAuthenticated();
+      
+      // Each user maintains their own presence/heartbeat
+      allow create, update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Global Statistics (Overview metadata)
+    match /global_stats/{statId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

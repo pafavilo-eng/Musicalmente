@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "fields": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "avatarId": { "type": "string" },
+        "language": { "type": "string" },
+        "highScore": { "type": "number" },
+        "totalMatches": { "type": "number" },
+        "totalCorrect": { "type": "number" },
+        "totalQuestionsAnswered": { "type": "number" },
+        "maxCombo": { "type": "number" },
+        "unlockedAchievements": { "type": "array" },
+        "isOnline": { "type": "boolean" },
+        "lastActivity": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "PublicPresence": {
+      "collection": "public_presence",
+      "fields": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "avatarId": { "type": "string" },
+        "isOnline": { "type": "boolean" },
+        "lastSeen": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  }
+}
